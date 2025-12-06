@@ -41,41 +41,41 @@ The system follows a multi-stage pipeline:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    DATA PIPELINE                                 │
+│                    DATA PIPELINE                                │
 ├─────────────────────────────────────────────────────────────────┤
 │  Raw CSV Logs → Cleaning → Feature Engineering → Sequences      │
-│                → Normalization → Train/Val/Test Split            │
+│                → Normalization → Train/Val/Test Split           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                    MODEL ARCHITECTURE                            │
+│                    MODEL ARCHITECTURE                           │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  Input Sequence (100 timesteps × 7 features)                     │
-│         ↓                                                         │
-│  ┌──────────────┐                                                │
-│  │  1D CNN      │  ← Extract local patterns in sequences         │
-│  │  (3 layers)  │    - Kernel size: 3                            │
-│  └──────────────┘    - Channels: [64, 128, 128]                  │
-│         ↓                                                         │
-│  ┌──────────────┐                                                │
-│  │  GRU         │  ← Model temporal dependencies                 │
-│  │  (2 layers)  │    - Hidden dim: 256                           │
-│  └──────────────┘    - Bidirectional: True                       │
-│         ↓                                                         │
-│  ┌──────────────┐                                                │
-│  │  Classifier  │  ← Fully connected layers                      │
-│  │  (2 layers)  │    - Dropout: 0.3                              │
-│  └──────────────┘    - Output: 5 classes                         │
-│         ↓                                                         │
-│  Grade Prediction (A/B/C/D/F)                                     │
-│                                                                   │
+│                                                                 │
+│  Input Sequence (100 timesteps × 7 features)                    │
+│         ↓                                                       │
+│  ┌──────────────┐                                               │
+│  │  1D CNN      │  ← Extract local patterns in sequences        │
+│  │  (3 layers)  │    - Kernel size: 3                           │
+│  └──────────────┘    - Channels: [64, 128, 128]                 │
+│         ↓                                                       │
+│  ┌──────────────┐                                               │
+│  │  GRU         │  ← Model temporal dependencies                │
+│  │  (2 layers)  │    - Hidden dim: 256                          │
+│  └──────────────┘    - Bidirectional: True                      │
+│         ↓                                                       │
+│  ┌──────────────┐                                               │
+│  │  Classifier  │  ← Fully connected layers                     │
+│  │  (2 layers)  │    - Dropout: 0.3                             │
+│  └──────────────┘    - Output: 5 classes                        │
+│         ↓                                                       │
+│  Grade Prediction (A/B/C/D/F)                                   │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│              EARLY WARNING SYSTEM                                │
+│              EARLY WARNING SYSTEM                               │
 ├─────────────────────────────────────────────────────────────────┤
-│  Risk Score Calculation → High-Risk Flagging → Intervention      │
+│  Risk Score Calculation → High-Risk Flagging → Intervention     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
