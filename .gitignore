@@ -33,17 +33,14 @@ venv.bak/
 # PyTorch
 *.pth
 *.pt
-!outputs/checkpoints/*.pt
 
 # Data
 data/raw/*.csv
 data/processed/*.npy
 data/processed/*.pkl
 
-# Outputs
-outputs/logs/
-outputs/predictions/*.csv
-outputs/metrics/*.json
+# Outputs - ignore entire outputs directory
+outputs/
 *.log
 
 # IDE
