@@ -410,16 +410,9 @@ If you use this project in your research, please cite:
 
 ---
 
-## License
-
-MIT License - See LICENSE file for details.
-
----
-
 ## Contact
 
 For questions or collaboration opportunities:
-- Email: your.email@example.com
 - GitHub Issues: [Submit an issue](https://github.com/yourusername/academic-performance-predictor-CNN-GRU/issues)
 
 ---
