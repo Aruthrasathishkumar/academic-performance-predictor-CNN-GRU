@@ -395,21 +395,6 @@ The synthetic data generator creates realistic student coding patterns, but **do
 
 ---
 
-## Citation
-
-If you use this project in your research, please cite:
-
-```bibtex
-@software{academic_performance_predictor_2024,
-  author = {Your Name},
-  title = {Academic Performance Predictor: CNN-GRU for Student Performance Analytics},
-  year = {2024},
-  url = {https://github.com/yourusername/academic-performance-predictor-CNN-GRU}
-}
-```
-
----
-
 ## Contact
 
 For questions or collaboration opportunities:
