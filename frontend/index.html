@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Performance Intelligence - IT207-DL1</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; }
+
+.header { background: #1e293b; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.header .subtitle { font-size: 13px; color: #94a3b8; margin-top: 3px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-green { background: #14532d; color: #86efac; }
+.badge-blue  { background: #1e3a5f; color: #93c5fd; }
+
+.tabs { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 32px; display: flex; }
+.tab { padding: 14px 22px; font-size: 14px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; user-select: none; }
+.tab:hover  { color: #2563eb; }
+.tab.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 500; }
+
+.content { padding: 24px 32px; max-width: 1440px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+@media (max-width: 900px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } }
+
+.card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+.card-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; font-weight: 500; }
+.card-value { font-size: 30px; font-weight: 700; }
+.card-sub   { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+.c-blue  { color: #2563eb; }
+.c-red   { color: #dc2626; }
+.c-green { color: #16a34a; }
+.c-gray  { color: #475569; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+.chart-box { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
+.chart-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px; }
+.section-title { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+tr:hover td { background: #f8fafc; }
+
+.pill-risk { background: #fee2e2; color: #dc2626; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pill-ok   { background: #dcfce7; color: #16a34a; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+.selector-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.selector-bar label { font-size: 14px; font-weight: 500; }
+select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #1e293b; background: white; cursor: pointer; min-width: 280px; }
+select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px #eff6ff; }
+
+.student-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+@media (max-width: 800px) { .student-stats { grid-template-columns: repeat(2, 1fr); } }
+.stat-box { background: #f8fafc; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; }
+.stat-box .lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-box .val { font-size: 24px; font-weight: 700; margin-top: 5px; }
+
+.intervention { padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+.int-high    { background: #fee2e2; border-left: 3px solid #ef4444; }
+.int-pattern { background: #fdf4ff; border-left: 3px solid #a855f7; }
+.int-medium  { background: #fef3c7; border-left: 3px solid #f59e0b; }
+.int-low     { background: #eff6ff; border-left: 3px solid #3b82f6; }
+
+#loading { text-align: center; padding: 80px 32px; color: #64748b; font-size: 15px; line-height: 1.8; }
+.prog-bar-wrap { width: 80px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.prog-bar { height: 100%; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Academic Performance Intelligence</h1>
+    <div class="subtitle">IT207-DL1-Spring2026 &nbsp;·&nbsp; CNN-GRU Multi-task Model with Attention</div>
+  </div>
+  <div class="badges">
+    <span class="badge badge-green">GRU v1 - 88.9% classification accuracy</span>
+    <span class="badge badge-blue">CNN-GRU v2 - MAE 7.40 pts &nbsp;R²&nbsp;0.853</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Class Overview</div>
+  <div class="tab" onclick="switchTab('student')">Student Detail</div>
+  <div class="tab" onclick="switchTab('curriculum')">Curriculum Insights</div>
+</div>
+
+<div class="content">
+  <div id="loading">Loading predictions.json…<br><small>If this persists, run: <code>python -m http.server 8080</code> from the project root, then open <code>http://localhost:8080/frontend/</code></small></div>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="tab-panel">
+    <div class="metrics-row">
+      <div class="card">
+        <div class="card-label">Total students</div>
+        <div class="card-value c-blue" id="m-total">-</div>
+        <div class="card-sub">enrolled in IT207-DL1</div>
+      </div>
+      <div class="card">
+        <div class="card-label">At-risk (predicted)</div>
+        <div class="card-value c-red" id="m-atrisk">-</div>
+        <div class="card-sub" id="m-atrisk-pct">below class median grade</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Class average grade</div>
+        <div class="card-value c-gray" id="m-avg">-</div>
+        <div class="card-sub">all assignments combined</div>
+      </div>
+      <div class="card">
+        <div class="card-label">GRU classification accuracy</div>
+        <div class="card-value c-green">88.9%</div>
+        <div class="card-sub">vs best baseline 86.5% random forest</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-box">
+        <div class="chart-title">Risk probability distribution - captures grade volatility and trajectory patterns, not just final average</div>
+        <div id="c-risk-dist" style="height:240px"></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Model performance comparison</div>
+        <div id="c-model-cmp" style="height:240px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">All students - sorted by risk probability</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Student email</th>
+              <th>Final avg</th>
+              <th>Risk probability</th>
+              <th>Skips</th>
+              <th>Most-attended assignment</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-students"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENT DETAIL -->
+  <div id="tab-student" class="tab-panel">
+    <div class="selector-bar">
+      <label for="sel-student">Select student:</label>
+      <select id="sel-student" onchange="renderStudent()">
+        <option value="">- choose a student -</option>
+      </select>
+    </div>
+
+    <div id="student-body" style="display:none">
+      <div class="student-stats">
+        <div class="stat-box">
+          <div class="lbl">Final average</div>
+          <div class="val" id="sd-avg">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Risk probability</div>
+          <div class="val" id="sd-risk">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Assignments skipped</div>
+          <div class="val" id="sd-skips">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Model verdict</div>
+          <div class="val" id="sd-verdict" style="font-size:16px;margin-top:8px">-</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-box">
+          <div class="chart-title">Grade trajectory - actual vs CNN-GRU predicted next grade</div>
+          <div id="c-traj" style="height:300px"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Attention weights - which assignments the model focused on</div>
+          <div id="c-attn" style="height:300px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Intervention recommendations</div>
+        <div id="interventions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRICULUM -->
+  <div id="tab-curriculum" class="tab-panel">
+    <div class="chart-box">
+      <div class="chart-title">Assignment difficulty score - model-derived from collective student behavior (red = very hard)</div>
+      <div id="c-diff" style="height:380px"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Assignment difficulty details - in course order</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Assignment</th>
+              <th>Difficulty score</th>
+              <th>Skip rate</th>
+              <th>Class mean grade</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-diff"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let DATA = null;
+
+/* ── TAB SWITCHING ─────────────────────────────── */
+function switchTab(name) {
+  const names = ['overview','student','curriculum'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+/* ── LOAD DATA ─────────────────────────────────── */
+async function loadData() {
+  try {
+    const r = await fetch('../outputs/predictions/predictions.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    DATA = await r.json();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('tab-overview').classList.add('active');
+    renderOverview();
+    buildStudentDropdown();
+    renderCurriculum();
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      '<strong>Could not load predictions.json</strong><br><br>' +
+      'For local preview: open a terminal in your project root and run:<br>' +
+      '<code style="background:#f1f5f9;padding:4px 8px;border-radius:4px">python -m http.server 8080</code><br><br>' +
+      'Then open: <a href="http://localhost:8080/frontend/">http://localhost:8080/frontend/</a><br><br>' +
+      '<small>Error: ' + e.message + '</small>';
+  }
+}
+
+/* ── OVERVIEW ──────────────────────────────────── */
+function renderOverview() {
+  const cs = DATA.class_summary;
+  const students = DATA.students;
+
+  document.getElementById('m-total').textContent = cs.total_students;
+  document.getElementById('m-atrisk').textContent = cs.at_risk_count;
+  document.getElementById('m-atrisk-pct').textContent =
+    Math.round(cs.at_risk_count / cs.total_students * 100) + '% of class predicted at-risk';
+  document.getElementById('m-avg').textContent = cs.class_avg_grade.toFixed(1) + '%';
+
+  /* Risk distribution */
+  const probs = students.map(s => s.risk_probability);
+  Plotly.newPlot('c-risk-dist', [{
+    x: probs, type: 'histogram', nbinsx: 10,
+    marker: { color: probs.map(p => p > 60 ? '#ef4444' : '#3b82f6'), opacity: 0.85 }
+  }], {
+    margin:{t:8,r:12,l:40,b:36},
+    xaxis:{title:'Risk probability (%)', range:[0,105]},
+    yaxis:{title:'Students'},
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent'
+  }, {responsive:true, displayModeBar:false});
+
+  /* Model comparison */
+  const m = cs.model_metrics;
+  Plotly.newPlot('c-model-cmp', [
+    {
+      name:'Classification accuracy (%)',
+      x:['LR','RF','GRU v1','CNN-GRU v2'],
+      y:[m.baseline_lr_accuracy, m.baseline_rf_accuracy, m.gru_v1_classification_accuracy, null],
+      type:'bar', yaxis:'y',
+      marker:{color:['#94a3b8','#94a3b8','#2563eb','#e2e8f0']}
+    },
+    {
+      name:'Regression MAE (pts)',
+      x:['LR','RF','GRU v1','CNN-GRU v2'],
+      y:[null, m.baseline_rf_mae, 22.18, m.cnn_gru_v2_regression_mae],
+      type:'bar', yaxis:'y2',
+      marker:{color:['transparent','#f97316','#f97316','#16a34a']}
+    }
+  ], {
+    margin:{t:8,r:56,l:40,b:40},
+    yaxis:{title:'Accuracy (%)', range:[0,115]},
+    yaxis2:{title:'MAE (pts)', overlaying:'y', side:'right', range:[0,30]},
+    legend:{orientation:'h', y:-0.25, font:{size:11}},
+    barmode:'group',
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent'
+  }, {responsive:true, displayModeBar:false});
+
+  /* Students table - sorted by risk probability descending */
+  const sorted = [...students].sort((a,b) => b.risk_probability - a.risk_probability);
+  const tbody = document.getElementById('tbl-students');
+  tbody.innerHTML = '';
+  sorted.forEach(s => {
+    const risk = s.at_risk_predicted === 1;
+    const skips = Math.max(0, s.total_skips);
+    const pct = s.risk_probability;
+    const barColor = pct > 60 ? '#ef4444' : '#3b82f6';
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td style="font-family:monospace;font-size:12px">${s.email}</td>
+        <td>${s.final_avg_grade}%</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%;background:${barColor}"></div></div>
+            <span style="font-size:12px;color:${barColor};font-weight:600">${pct}%</span>
+          </div>
+        </td>
+        <td>${skips}</td>
+        <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+            title="${s.top_attended_assignment}">${s.top_attended_assignment}</td>
+        <td><span class="${risk ? 'pill-risk' : 'pill-ok'}">${risk ? 'AT RISK' : 'ON TRACK'}</span></td>
+      </tr>
+    `);
+  });
+}
+
+/* ── STUDENT DETAIL ────────────────────────────── */
+function buildStudentDropdown() {
+  const sel = document.getElementById('sel-student');
+  [...DATA.students]
+    .sort((a,b) => a.email.localeCompare(b.email))
+    .forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.email;
+      o.textContent = s.email + (s.at_risk_predicted ? '  ⚠ at risk' : '');
+      sel.appendChild(o);
+    });
+}
+
+function renderStudent() {
+  const email = document.getElementById('sel-student').value;
+  const body  = document.getElementById('student-body');
+  if (!email) { body.style.display = 'none'; return; }
+
+  const s = DATA.students.find(x => x.email === email);
+  body.style.display = 'block';
+
+  document.getElementById('sd-avg').textContent    = s.final_avg_grade + '%';
+  document.getElementById('sd-risk').textContent   = s.risk_probability + '%';
+  document.getElementById('sd-skips').textContent  = Math.max(0, s.total_skips);
+
+  const verdict = document.getElementById('sd-verdict');
+  verdict.textContent  = s.at_risk_predicted ? 'AT RISK' : 'ON TRACK';
+  verdict.style.color  = s.at_risk_predicted ? '#dc2626' : '#16a34a';
+
+  /* Grade trajectory */
+  const traj   = s.grade_trajectory;
+  const labels = traj.map(t => 'A' + t.assignment_order);
+  const actual = traj.map(t => t.actual_grade);
+  const pred   = traj.map(t => t.predicted_next_grade);
+
+  Plotly.newPlot('c-traj', [
+    { x:labels, y:actual, name:'Actual grade',
+      mode:'lines+markers', line:{color:'#2563eb',width:2}, marker:{size:7} },
+    { x:labels, y:pred, name:'Predicted next (CNN-GRU)',
+      mode:'lines+markers', line:{color:'#f59e0b',width:2,dash:'dash'},
+      marker:{size:7, symbol:'diamond'} },
+    { x:labels, y:Array(labels.length).fill(64.2), name:'Risk threshold 64.2%',
+      mode:'lines', line:{color:'#ef4444',width:1,dash:'dot'} }
+  ], {
+    margin:{t:8,r:12,l:44,b:44},
+    xaxis:{title:'Assignment index'},
+    yaxis:{title:'Grade (%)', range:[-5,110]},
+    legend:{orientation:'h', y:1.12, font:{size:11}},
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent'
+  }, {responsive:true, displayModeBar:false});
+
+  /* Attention weights */
+  const attnVals = s.attention_weights.slice(0, traj.length);
+  const attnLabels = traj.map((t,i) => 'A' + i);
+  const maxAttn = Math.max(...attnVals);
+
+  Plotly.newPlot('c-attn', [{
+    x: attnLabels, y: attnVals, type: 'bar',
+    marker: {
+      color: attnVals.map(v => {
+        const t = v / maxAttn;
+        const r = Math.round(37 + (220-37)*t);
+        const g = Math.round(99 + (38-99)*t);
+        const b = Math.round(235 + (38-235)*t);
+        return `rgb(${r},${g},${b})`;
+      })
+    }
+  }], {
+    margin:{t:8,r:12,l:44,b:36},
+    xaxis:{title:'Assignment index'},
+    yaxis:{title:'Attention weight'},
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent'
+  }, {responsive:true, displayModeBar:false});
+
+  /* Interventions */
+  const div = document.getElementById('interventions');
+  div.innerHTML = '';
+  s.interventions.forEach(msg => {
+    const cls = msg.startsWith('HIGH')    ? 'int-high'
+              : msg.startsWith('PATTERN') ? 'int-pattern'
+              : msg.startsWith('LOW')     ? 'int-low'
+              : 'int-medium';
+    div.insertAdjacentHTML('beforeend',
+      `<div class="intervention ${cls}">${msg}</div>`);
+  });
+}
+
+/* ── CURRICULUM ────────────────────────────────── */
+function renderCurriculum() {
+  const diff = [...DATA.assignment_difficulty]
+    .sort((a,b) => b.difficulty_score - a.difficulty_score);
+
+  const names  = diff.map(d => {
+    const n = d.assignment_name;
+    return n.length > 22 ? n.substring(0,22) + '…' : n;
+  });
+  const scores = diff.map(d => d.difficulty_score);
+
+  Plotly.newPlot('c-diff', [{
+    x: names, y: scores, type: 'bar',
+    marker: {
+      color: scores.map(s => s > 70 ? '#ef4444' : s > 35 ? '#f59e0b' : '#22c55e')
+    }
+  }], {
+    margin:{t:8,r:12,l:50,b:180},
+    xaxis:{tickangle:-45, tickfont:{size:10}},
+    yaxis:{title:'Difficulty score (0–100)', range:[0,115]},
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent'
+  }, {responsive:true, displayModeBar:false});
+
+  /* Table in course order */
+  const ordered = [...DATA.assignment_difficulty]
+    .sort((a,b) => a.assignment_order - b.assignment_order);
+  const tbody = document.getElementById('tbl-diff');
+  tbody.innerHTML = '';
+  ordered.forEach(d => {
+    const s = d.difficulty_score;
+    const c = s > 70 ? '#dc2626' : s > 35 ? '#d97706' : '#16a34a';
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td style="color:#94a3b8">${d.assignment_order}</td>
+        <td style="font-size:13px">${d.assignment_name}</td>
+        <td><strong style="color:${c}">${s.toFixed(1)}</strong></td>
+        <td>${d.skip_rate_pct}%</td>
+        <td>${d.class_mean_grade}%</td>
+      </tr>
+    `);
+  });
+}
+
+/* ── INIT ──────────────────────────────────────── */
+loadData();
+</script>
+</body>
+</html>
