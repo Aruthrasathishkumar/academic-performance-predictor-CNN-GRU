@@ -12,6 +12,10 @@ https://aruthrasathishkumar.github.io/academic-performance-predictor-CNN-GRU/fro
 
 💡 This design ensures **lightweight deployment + reproducibility without cloud dependency**.
 
+## 🏗️ System Architecture
+
+<img src="./system architecture.png" width="800"/>
+
 ## 🧠 What This Project Does
 
 Traditional systems identify struggling students **too late**.
@@ -43,31 +47,6 @@ Example:
 - 📚 Assignment difficulty scoring from cohort behavior
 - 📊 Interactive dashboard with real student insights
 
-## 🏗️ Architecture
-
-```
-Codio LMS Data (CSV Export)
-        │
-        ▼
-Data Processing (Pandas, NumPy)
-        │
-        ▼
-Feature Engineering (13 behavioral features)
-        │
-        ▼
-Deep Learning Pipeline
-    ├── GRU v1 (multi-task + attention)
-    └── CNN-GRU v2 (Conv1D + GRU + attention)
-        │
-        ▼
-Predictions Export (predictions.json)
-        │
-        ▼
-Frontend Dashboard (HTML + Plotly)
-        │
-        ▼
-GitHub Pages (Frontend-only deployment)
-```
 
 ## 🛠️ Tech Stack
 
